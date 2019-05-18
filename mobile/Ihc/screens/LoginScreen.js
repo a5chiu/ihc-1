@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  View
+  View,
+  Image
 } from 'react-native';
 let t = require('tcomb-form-native');
 let Form = t.form.Form;
@@ -11,20 +12,15 @@ import Container from '../components/Container';
 import Button from '../components/Button';
 import Credentials from '../models/Credentials';
 
+
 class LoginScreen extends Component<{}> {
   constructor(props) {
     super(props);
   }
 
-  Locations = t.enums({
-    Tijuana: 'Tijuana',
-    California: 'California'
-  });
-
   credentials = t.struct({
     userId: t.String,
     password: t.String,
-    location: this.Locations
   });
 
   options = {
@@ -72,22 +68,66 @@ class LoginScreen extends Component<{}> {
 
   render() {
     return (
-      <Container>
-        <Text style={styles.welcome}>
-          Welcome to clinic!
-        </Text>
 
-        <View style={styles.form}>
-          <Form ref="form"
-            type={this.credentials}
-            options={this.options}/>
+
+      <View style={{
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+
+        <View style={{
+          height: '30%',
+          width: '100%',
+          }}>
+
+          <Image source={require('../images/ihc.png')} />
+
         </View>
 
-        <Button onPress={this.submit}
-          text="Login"
-          style={styles.button}
-        />
-      </Container>
+        <View style={{
+          height: '70%',
+          width: '100%',
+          backgroundColor: '#0660AE',
+        }}>
+
+        </View>
+
+        <View style={{
+          width: 500,
+          backgroundColor: 'white',
+          position: 'absolute',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 50,
+          paddingLeft: 15,
+          paddingRight: 15,
+          top: 100,
+          shadowColor: "#000",
+          shadowOffset: {
+          	width: 0,
+          	height: 2,
+          },
+          shadowOpacity: 0.23,
+          shadowRadius: 2.62,
+          elevation: 4,
+        }}>
+
+          <View style={styles.form}>
+            <Form ref="form"
+              type={this.credentials}
+              options={this.options}/>
+          </View>
+
+          <Button onPress={this.submit}
+            text="Sign In"
+            style={styles.button}
+          />
+        </View>
+
+
+      </View>
     );
   }
 }
@@ -99,6 +139,8 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   button: {
+    marginTop: 25,
+    borderRadius: 5,
     width: 140
   },
   form: {

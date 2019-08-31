@@ -12,15 +12,20 @@ import Container from '../components/Container';
 import Button from '../components/Button';
 import Credentials from '../models/Credentials';
 
-
 class LoginScreen extends Component<{}> {
   constructor(props) {
     super(props);
   }
 
+  Locations = t.enums({
+    Tijuana: 'Tijuana',
+    California: 'California'
+  });
+
   credentials = t.struct({
     userId: t.String,
     password: t.String,
+    location: this.Locations
   });
 
   options = {
@@ -68,8 +73,6 @@ class LoginScreen extends Component<{}> {
 
   render() {
     return (
-
-
       <View style={{
         flex: 1,
         flexDirection: 'column',
@@ -114,19 +117,19 @@ class LoginScreen extends Component<{}> {
           elevation: 4,
         }}>
 
-          <View style={styles.form}>
-            <Form ref="form"
-              type={this.credentials}
-              options={this.options}/>
-          </View>
+        <Container>
+        <View style={styles.form}>
+        <Form ref="form"
+          type={this.credentials}
+          options={this.options}/>
+      </View>
 
-          <Button onPress={this.submit}
-            text="Sign In"
-            style={styles.button}
-          />
+      <Button onPress={this.submit}
+        text="Login"
+        style={styles.button}
+      />
+      </Container>
         </View>
-
-
       </View>
     );
   }
@@ -139,9 +142,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   button: {
-    marginTop: 25,
-    borderRadius: 5,
-    width: 140
+    width: 400
   },
   form: {
     width: '80%',

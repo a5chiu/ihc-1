@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { Navigation } from 'react-native-navigation';
 
 import { registerScreens } from './screens';
@@ -10,8 +12,6 @@ import {
 import { createStore } from 'redux';
 import reducers from './reduxReducers/reducers';
 import { Provider } from 'react-redux';
-
-
 
 const store = createStore(reducers);
 
@@ -33,11 +33,11 @@ if (config.testingServerDataService === 'true' ) {
   // start the app
   Navigation.startSingleScreenApp({
     screen: {
-      screen: 'Ihc.LoginScreen',
+      screen: 'Ihc.newWelcomeScreen',
       title: 'Worker Sign In',
-
+      defaultNagiationOptions: {
+      },
       navigatorStyle: {
-        headerLeft: <Image source={require('/images/ihc.png')} />,
         navBarBackgroundColor: 'white',
       },
       navigatorButtons: {}

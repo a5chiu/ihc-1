@@ -15,6 +15,9 @@ import MedicationInventoryScreen from './MedicationInventoryScreen';
 import LoginScreen from './LoginScreen';
 import newPatientList from './newPatientList.js';
 import newPatientCheckIn from './newPatientCheckIn';
+import newPatientHomeScreen from './newPatientHomeScreen';
+import newWelcomeScreen from './newWelcomeScreen';
+
 
 // register all screens of the app (including internal ones)
 // store and Provider are pieces of Redux
@@ -35,5 +38,7 @@ export function registerScreens(store, Provider) {
     Navigation.registerComponent('Ihc.LoginScreen', () => LoginScreen, store, Provider);
     Navigation.registerComponent('Ihc.newPatientList', () => newPatientList, store, Provider);
     Navigation.registerComponent('Ihc.newPatientCheckIn', () => newPatientCheckIn, store, Provider);
+    Navigation.registerComponent('Ihc.newPatientHomeScreen', () => newPatientHomeScreen, store, Provider);
+    Navigation.registerComponent('Ihc.newWelcomeScreen', () => newWelcomeScreen, store, Provider);
 
 }

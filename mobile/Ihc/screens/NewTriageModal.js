@@ -11,10 +11,10 @@ import {
   Switch
 } from 'react-native';
 import { Col, Grid } from 'react-native-easy-grid';
-import Container from '../components/Container';
-import Button from '../components/Button';
+import Container from './Container';
+import Button from './Button';
 
-class PatientHomeScreen extends Component<{}> {
+class NewTriageModal extends Component<{}> {
   /*
    * Expects:
    *  {
@@ -77,9 +77,9 @@ class PatientHomeScreen extends Component<{}> {
     };
   }
 
-  /*state = {
+  state = {
     modalVisible: false,
-  };*/
+  };
 
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
@@ -116,7 +116,46 @@ class PatientHomeScreen extends Component<{}> {
     this.setState({pregnant: value})
   }
 
+  goToTriage = () => {
+    this.props.navigator.push({
+      screen: 'Ihc.TriageScreen',
+      title: 'Back to patient',
+      passProps: { name: this.props.name }
+    });
+  }
 
+  goToSoap = () => {
+    this.props.navigator.push({
+      screen: 'Ihc.SoapScreen',
+      title: 'Back to patient',
+      passProps: { name: this.props.name }
+    });
+  }
+
+  goToMedicationList = () => {
+    this.props.navigator.push({
+      screen: 'Ihc.MedicationScreen',
+      title: 'Back to patient',
+      passProps: { name: this.props.name }
+    });
+  }
+
+  goToHistory = () => {
+    this.props.navigator.push({
+      screen: 'Ihc.PatientHistoryScreen',
+      title: 'Back to patient',
+      passProps: { name: this.props.name }
+    });
+  }
+
+  goToGrowthChart = () => {
+    // Growth chart takes time to load
+    this.props.setLoading(true);
+    this.props.navigator.push({
+      screen: 'Ihc.GrowthChartScreen',
+      title: 'Back to patient',
+    });
+  }
 
   onNavigatorEvent(event) {
     if (event.id === 'willAppear') {
@@ -131,7 +170,15 @@ class PatientHomeScreen extends Component<{}> {
     return (
     <Container>
 
-      <View style={{marginTop: 22}}>
+    <View style={{marginTop: 22}}>
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={this.state.modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+          }}>
+          <ScrollView style={{marginTop: 22}}>
             <View style={styles.triagescreen}>
               <Text style={styles.title}>New Triage Form: {dateString}</Text>
               <Text style={styles.title}>Patient Information</Text>
@@ -522,8 +569,23 @@ class PatientHomeScreen extends Component<{}> {
                     value = {this.state.unitswitch}/>
                 </View>
               </View>
-            </View>
 
+              <Button
+                onPress={() => {
+                  this.setModalVisible(!this.state.modalVisible);
+                }}
+                style={styles.button}
+                text='Hide Modal'/>
+            </View>
+          </ScrollView>
+        </Modal>
+
+        <Button
+          onPress={() => {
+            this.setModalVisible(true);
+          }}
+          style={styles.button}
+          text='Show Modal'/>
       </View>
 
         <Text style={styles.title}>
@@ -635,20 +697,12 @@ const styles = StyleSheet.create({
 });
 
 // Redux
-import { setLoading, setSuccessMessage, setErrorMessage, clearMessages, isUploading } from '../reduxActions/containerActions';
+import { setLoading, clearMessages } from '../reduxActions/containerActions';
 import { connect } from 'react-redux';
 
-const mapStateToProps = state => ({
-  loading: state.loading,
-  currentPatientKey: state.currentPatientKey
-});
-
 const mapDispatchToProps = dispatch => ({
-  setLoading: (val,showRetryButton) => dispatch(setLoading(val, showRetryButton)),
-  setErrorMessage: val => dispatch(setErrorMessage(val)),
-  setSuccessMessage: val => dispatch(setSuccessMessage(val)),
-  clearMessages: () => dispatch(clearMessages()),
-  isUploading: val => dispatch(isUploading(val))
+  setLoading: (val) => dispatch(setLoading(val)),
+  clearMessages: () => dispatch(clearMessages())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PatientHomeScreen);
+export default connect(null, mapDispatchToProps)(NewTriageModal);

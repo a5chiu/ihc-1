@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  View
+  View,
+  TouchableOpacity,
 } from 'react-native';
 import {localData, serverData} from '../services/DataService';
 import Container from '../components/Container';
@@ -10,7 +11,8 @@ import Button from '../components/Button';
 import {downstreamSyncWithServer} from '../util/Sync';
 import MenuItem from '../components/MenuItem';
 
-class WelcomeScreen extends Component<{}> {
+
+class newWelcomeScreen extends Component {
   constructor(props) {
     super(props);
   }
@@ -88,78 +90,48 @@ class WelcomeScreen extends Component<{}> {
   render() {
     return (
       <Container>
-        <Text style={styles.welcome}>
-          Welcome to clinic!
-        </Text>
         <View style={styles.menuContainer}>
-          <MenuItem itemImage={require('../images/WelcomeScreen/CheckInPatient.png')} onPress={this.upload}/>
-          <MenuItem itemImage={require('../images/WelcomeScreen/Labs.png')}/>
-          <MenuItem itemImage={require('../images/WelcomeScreen/PatientList.png')}/>
-          <MenuItem itemImage={require('../images/WelcomeScreen/Pharmacy.png')}/>
+          <TouchableOpacity onPress={this.goToSignin} style={styles.TouchableOpacityStyle}>
+            <MenuItem itemImage={require('../images/WelcomeScreen/CheckInPatient.png')}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.goToSelectPatient} style={styles.TouchableOpacityStyle}>
+            <MenuItem itemImage={require('../images/WelcomeScreen/PatientList.png')}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.goToSignin} style={styles.TouchableOpacityStyle}>
+            <MenuItem itemImage={require('../images/WelcomeScreen/Labs.png')}/>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={this.goToMedicationInventory} style={styles.TouchableOpacityStyle}>
+            <MenuItem itemImage={require('../images/WelcomeScreen/Pharmacy.png')}/>
+          </TouchableOpacity>
 
         </View>
-        <Button onPress={this.goToSignin}
-          text="Signin"
-          style={styles.button}
-        />
-        <Button onPress={this.goToSelectPatient}
-          text="Select Patient"
-          style={styles.button}
-        />
-        <Button onPress={this.upload}
-          text="Upload updates"
-          style={styles.button}
-        />
-        <Button onPress={this.download}
-          text="Download updates"
-          style={styles.button}
-        />
-        <Button onPress={this.goToMedicationInventory}
-          text="Medication Inventory"
-          style={styles.button}
-        />
       </Container>
     );
   }
 }
 
+
 const styles = StyleSheet.create({
   menuContainer: {
-    height: '85%',
-    width:'85%',
+    height: 600,
+    width: 1000,
     flexDirection: 'row',
     flexWrap: 'wrap',
+    marginHorizontal: '15%',
+    marginTop: 50,
   },
-  test: {
-    width: 500,
-    backgroundColor: 'red',
-    height: 500
+  TouchableOpacityStyle: {
+    height: '50%',
+    width: '50%',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-    width: 600
-  },
-  button: {
-    width: 140
-  }
 });
 
-// Redux
-import { setLoading, setErrorMessage, setSuccessMessage, clearMessages, isUploading } from '../reduxActions/containerActions';
+import { setLoading, clearMessages } from '../reduxActions/containerActions';
 import { connect } from 'react-redux';
 
-const mapStateToProps = state => ({
-  loading: state.loading
-});
-
 const mapDispatchToProps = dispatch => ({
-  setLoading: val => dispatch(setLoading(val)),
-  setErrorMessage: val => dispatch(setErrorMessage(val)),
-  setSuccessMessage: val => dispatch(setSuccessMessage(val)),
-  clearMessages: () => dispatch(clearMessages()),
-  isUploading: val => dispatch(isUploading(val))
+  setLoading: (val) => dispatch(setLoading(val)),
+  clearMessages: () => dispatch(clearMessages())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(WelcomeScreen);
+export default connect(null, mapDispatchToProps)(newWelcomeScreen);

@@ -28,7 +28,13 @@ export default class Triage {
   }
 
   static extractFromForm(form, patientKey, labTestObjects) {
+    let intVals = ['height', 'weight', 'rr', 'temp', 'o2', 'hr'];
     const triage = Object.assign({}, form);
+    intVals.forEach( obj => {
+      if(typeof(triage[obj]) != "number"){
+        triage[obj] = Number(triage[obj]);
+      }
+    });
     triage.patientKey = patientKey;
     triage.lastUpdated = new Date().getTime();
 

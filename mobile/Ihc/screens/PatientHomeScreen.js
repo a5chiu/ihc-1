@@ -1,654 +1,250 @@
 import React, { Component } from 'react';
 import {
-  StyleSheet,
-  ScrollView,
-  Text,
-  View,
-  Modal,
-  Alert,
-  AppRegistry,
-  TextInput,
-  Switch
+    AppRegistry,
+    StyleSheet,
+    Text,
+    View,
+    Modal,
+    TouchableHighlight,
+    TouchableOpacity,
+    Animated
 } from 'react-native';
-import { Col, Grid } from 'react-native-easy-grid';
-import Container from '../components/Container';
+import ScrollableTabView from 'react-native-scrollable-tab-view';
+import TabBar from "react-native-underline-tabbar";
 import Button from '../components/Button';
+import TriageScreen from './TriageScreen';
+import TriagePatientPage from '../components/TriagePatientPage';
+import Table from 'react-native-simple-table';
+import TriagePageNew from './TriagePageNew';
+import { localData, serverData } from '../services/DataService';
+import { stringDate } from '../util/Date';
+import TriageHistory from './TriageHistory';
+import SoapScreen from './SoapScreen';
+import Container from '../components/Container';
+import GrowthChartScreen from './GrowthChartScreen';
 
-class PatientHomeScreen extends Component<{}> {
-  /*
-   * Expects:
-   *  {
-   *    name: string, patient's name (for convenience)
-   *    patientKey: string
-   *    todayDateString: optional, (new Date().toDateString()), helpful for
-   *    tests
-   *  }
-   */
-  constructor(props) {
-    super(props);
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
-    this.state = {
-      text: 'Useless Placeholder',
-      firstname: 'First Name',
-      middlename: 'Middle Name',
-      motherlastname: 'Mother\'s Last Name',
-      fatherlastname: 'Father\'s Last Name',
-      bdaymonth: 'Month',
-      bdaydate: 'Day',
-      bdayyear: 'Year',
-      femaleswitch: false,
-      menstruation: 'Last Menstrual Period',
-      pregancy: 'Pregnancies (#)',
-      abortion: 'Abortions (#)',
-      livebirths: 'Live Births (#)',
-      miscarriages: 'Miscarriages (#)',
-      height: 'Height',
-      heightswitch: false,
-      weight: 'Weight',
-      weightswitch: false,
-      respirationrate: 'Respiration Rate',
-      temp: 'Temperature',
-      tempswitch: false,
-      oxygenlevel: 'Oxygen Level',
-      bloodpressure: 'Blood Pressure',
-      heartrate: 'Heart Rate',
-      bmi: 'BMI',
-      allergies: 'Allergies',
-      medications: 'Current Medications',
-      surgeries: 'Past Surgeries',
-      immunizations: 'Immunizations',
-      chiefcomplaint: 'Enter Chief Complaint',
-      hb: 'Hb',
-      hba1c: 'HbA1c',
-      bloodglucose: 'Blood Glucose Level',
-      fasting: false,
-      pregnant: false,
-      leukocytes: 'Leukocytes',
-      nitrites: 'Nitrites',
-      urobilirubin: 'Uro-Bilirubin',
-      glucoselevel: 'Glucose Level',
-      protein: 'Protein',
-      phlevel: 'pH Level',
-      blood: 'Blood',
-      specificgravity: 'Specific Gravity',
-      ketone: 'Ketone',
-      bilirubin: 'Bilirubin',
-      unitswitch: false,
+
+const Page = ({ label }) =>
+    (<View style = { styles.container }>
+    <Text style = { styles.welcome }>
+      { label }
+    </Text>
+    <Text style = { styles.instructions }>
+      To get started, edit index.ios.js
+    </Text>
+    <Text style = { styles.instructions } >
+      Press Cmd + R to reload, { '\n' }
+      Cmd + D or shake
+      for dev menu
+    </Text>
+    </View>
+);
+
+
+
+const Tab = ({ tab, page, isTabActive, onPressHandler, onTabLayout, styles }) => {
+    const { label } = tab;
+    const style = {
+        marginRight: 30,
+        paddingVertical: 10,
     };
-  }
-
-  /*state = {
-    modalVisible: false,
-  };*/
-
-  setModalVisible(visible) {
-    this.setState({modalVisible: visible});
-  }
-
-  sexSwitch = (value) => {
-      //onValueChange of the switch this function will be called
-      this.setState({femaleswitch: value})
-      //state changes according to switch
-      //which will result in re-render the text
-   }
-
-   heightSwitch = (value) => {
-     this.setState({heightswitch: value})
-   }
-
-  weightSwitch = (value) => {
-    this.setState({weightswitch: value})
-  }
-
-  unitSwitch = (value) => {
-    this.setState({unitswitch: value})
-  }
-
-  tempSwitch = (value) => {
-    this.setState({tempswitch: value})
-  }
-
-  fastingSwitch = (value) => {
-    this.setState({fasting: value})
-  }
-
-  pregnantSwitch = (value) => {
-    this.setState({pregnant: value})
-  }
-
-
-
-  onNavigatorEvent(event) {
-    if (event.id === 'willAppear') {
-      this.props.clearMessages();
-    }
-  }
-
-  render() {
-    const date = new Date();
-    //const dateString = `${date.getMonth()} ${date.getDate()}, ${date.getYear()}`;
-    const dateString = this.props.todayDateString || date.toDateString();
+    const containerStyle = {
+        paddingHorizontal: 40,
+        paddingVertical: 10,
+        borderRadius: 25,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: styles.backgroundColor,
+        opacity: styles.opacity,
+        transform: [{ scale: styles.opacity }],
+    };
+    const textStyle = {
+        color: styles.textColor,
+        fontWeight: '600',
+    };
     return (
-    <Container>
-
-      <View style={{marginTop: 22}}>
-            <View style={styles.triagescreen}>
-              <Text style={styles.title}>New Triage Form: {dateString}</Text>
-              <Text style={styles.title}>Patient Information</Text>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Name</Text>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(firstname) => this.setState({firstname})}
-                  value={this.state.firstname}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(middlename) => this.setState({middlename})}
-                  value={this.state.middlename}
-                  />
-                </View>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(motherlastname) => this.setState({motherlastname})}
-                  value={this.state.motherlastname}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(fatherlastname) => this.setState({fatherlastname})}
-                  value={this.state.fatherlastname}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Birthday</Text>
-                <View style={{
-                  alignItems: 'flex-start',
-                  flexDirection: 'row',
-                  justifyContent: 'flex-start',
-                  padding: 10,
-                  start: 100,
-                }}>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(bdaymonth) => this.setState({bdaymonth})}
-                  value={this.state.bdaymonth}
-                  />
-                <TextInput
-                  style={styles.input, {width: 70}}
-                  onChangeText={(bdaydate) => this.setState({bdaydate})}
-                  value={this.state.bdaydate}
-                  />
-                <TextInput
-                  style={styles.input, {width: 100}}
-                  onChangeText={(bdayyear) => this.setState({bdayyear})}
-                  value={this.state.bdayyear}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Sex</Text>
-                <View style={styles.inputsection}>
-                <Text
-                  style={styles.input, {width: 300}}>
-                  {this.state.femaleswitch?'Female':'Male'}
-                </Text>
-                <Switch
-                  style={styles.switch}
-                  onValueChange = {this.sexSwitch}
-                  value = {this.state.femaleswitch}/>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(menstruation) => this.setState({menstruation})}
-                  value={this.state.menstruation}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(pregancy) => this.setState({pregancy})}
-                  value={this.state.pregancy}
-                  />
-                </View>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(livebirths) => this.setState({livebirths})}
-                  value={this.state.livebirths}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(abortion) => this.setState({abortion})}
-                  value={this.state.abortion}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(miscarriages) => this.setState({miscarriages})}
-                  value={this.state.miscarriages}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Vitals</Text>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(height) => this.setState({height})}
-                  value={this.state.height}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(weight) => this.setState({weight})}
-                  value={this.state.weight}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(respirationrate) => this.setState({respirationrate})}
-                  value={this.state.respirationrate}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(temp) => this.setState({temp})}
-                  value={this.state.temp}
-                  />
-                </View>
-                <View style={styles.inputunitsection}>
-                  <Text style={styles.units}>{this.state.heightswitch?'cm':'in'}</Text>
-                  <Text style={styles.units}>{this.state.weightswitch?'kg':'lb'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.tempswitch?'C':'F'}</Text>
-                </View>
-                <View style={styles.inputsection, {marginLeft: 0}}>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.heightSwitch}
-                    value = {this.state.heightswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.weightSwitch}
-                    value = {this.state.weightswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.tempSwitch}
-                    value = {this.state.tempswitch}/>
-                </View>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(oxygenlevel) => this.setState({oxygenlevel})}
-                  value={this.state.oxygenlevel}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(bloodpressure) => this.setState({bloodpressure})}
-                  value={this.state.bloodpressure}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(heartrate) => this.setState({heartrate})}
-                  value={this.state.heartrate}
-                  />
-                <TextInput
-                  style={styles.input, {width: 300}}
-                  onChangeText={(bmi) => this.setState({bmi})}
-                  value={this.state.bmi}
-                  />
-                </View>
-                <View style={styles.inputunitsection}>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                </View>
-                <View style={styles.inputsection, {marginLeft: 0}}>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                </View>
-
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>History</Text>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 700}}
-                  onChangeText={(allergies) => this.setState({allergies})}
-                  value={this.state.allergies}
-                  />
-                <TextInput
-                  style={styles.input, {width: 700}}
-                  onChangeText={(medications) => this.setState({medications})}
-                  value={this.state.medications}
-                  />
-                <TextInput
-                  style={styles.input, {width: 700}}
-                  onChangeText={(surgeries) => this.setState({surgeries})}
-                  value={this.state.surgeries}
-                  />
-                <TextInput
-                  style={styles.input, {width: 700}}
-                  onChangeText={(immunizations) => this.setState({immunizations})}
-                  value={this.state.immunizations}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Chief Complaint</Text>
-                <View style={styles.inputsection}>
-                <TextInput
-                  style={styles.input, {width: 700, start: -30}}
-                  onChangeText={(chiefcomplaint) => this.setState({chiefcomplaint})}
-                  value={this.state.chiefcomplaint}
-                  />
-                </View>
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Labs</Text>
-                <View style={styles.inputsection}>
-                <TextInput
-                style={styles.input, {width: 300}}
-                  onChangeText={(hb) => this.setState({hb})}
-                  value={this.state.hb}
-                  />
-                <TextInput
-                style={styles.input, {width: 300}}
-                  onChangeText={(hba1c) => this.setState({hba1c})}
-                  value={this.state.hba1c}
-                  />
-                <TextInput
-                style={styles.input, {width: 300}}
-                  onChangeText={(bloodglucose) => this.setState({bloodglucose})}
-                  value={this.state.bloodglucose}
-                  />
-                </View>
-                <View style={styles.inputsection}>
-                  <Text>Fasting: {this.state.fasting?'yes':'no'}</Text>
-                  <Text>Pregnant: {this.state.pregnant?'yes':'no'}</Text>
-                </View>
-                <View style={styles.inputsection}>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.fastingSwitch}
-                    value = {this.state.fasting}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.pregnantSwitch}
-                    value = {this.state.pregnant}/>
-                </View>
-              </View>
-
-              <View style={styles.triagesection}>
-                <Text style={styles.subtitle}>Urine Test</Text>
-                <View style={styles.inputsection}>
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(leukocytes) => this.setState({leukocytes})}
-                    value={this.state.leukocytes}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(nitrites) => this.setState({nitrites})}
-                    value={this.state.nitrites}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(urobilirubin) => this.setState({urobilirubin})}
-                    value={this.state.urobilirubin}
-                    />
-                </View>
-                <View style={styles.inputunitsection}>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                </View>
-                <View style={styles.inputsection, {marginLeft: 0}}>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                </View>
-                <View style={styles.inputsection}>
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(glucoselevel) => this.setState({glucoselevel})}
-                    value={this.state.glucoselevel}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(protein) => this.setState({protein})}
-                    value={this.state.protein}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(phlevel) => this.setState({phlevel})}
-                    value={this.state.phlevel}
-                    />
-                </View>
-                <View style={styles.inputunitsection}>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                </View>
-                <View style={styles.inputsection, {marginLeft: 0}}>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                </View>
-                <View style={styles.inputsection}>
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(blood) => this.setState({blood})}
-                    value={this.state.blood}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(specificgravity) => this.setState({specificgravity})}
-                    value={this.state.specificgravity}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(ketone) => this.setState({ketone})}
-                    value={this.state.ketone}
-                    />
-                  <TextInput
-                    style={styles.input, {width: 200}}
-                    onChangeText={(bilirubin) => this.setState({bilirubin})}
-                    value={this.state.bilirubin}
-                    />
-                </View>
-                <View style={styles.inputunitsection}>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                  <Text style={styles.units}>{this.state.unitswitch?'unit1':'unit2'}</Text>
-                </View>
-                <View style={styles.inputsection, {marginLeft: 0}}>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                  <Switch
-                    style={styles.switch}
-                    onValueChange = {this.unitSwitch}
-                    value = {this.state.unitswitch}/>
-                </View>
-              </View>
-            </View>
-
-      </View>
-
-        <Text style={styles.title}>
-          {this.props.name}
-        </Text>
-
-        <Text style={styles.title}>
-          {dateString}
-        </Text>
-
-        <View style={styles.gridContainer}>
-          <Grid>
-            <Col style={styles.col}>
-              <Button onPress={this.goToTriage}
-                style={styles.button}
-                text='Triage' />
-
-              <Button onPress={this.goToSoap}
-                style={styles.button}
-                text='SOAP' />
-
-              <Button onPress={this.goToMedicationList}
-                style={styles.button}
-                text='Medications' />
-            </Col>
-
-            <Col style={styles.col}>
-              <Button onPress={this.goToHistory}
-                style={styles.button}
-                text='History' />
-
-              <Button onPress={this.goToGrowthChart}
-                style={styles.button}
-                text='Growth Chart' />
-            </Col>
-          </Grid>
-        </View>
-      </Container>
+      <TouchableOpacity style = { style }
+        onPress = { onPressHandler }
+        onLayout = { onTabLayout }
+        key = { page } >
+        <Animated.View style = { containerStyle } >
+        <Animated.Text style = { textStyle } > { label }
+        </Animated.Text>
+        </Animated.View>
+      </TouchableOpacity>
     );
-  }
+};
+
+class PatientHomeScreen extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            modalVisible: false,
+            patientInfo: null,
+        };
+        this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+    }
+
+    _scrollX = new Animated.Value(0);
+    // 6 is a quantity of tabs
+    interpolators = Array.from({ length: 6 }, (_, i) => i).map(idx => ({
+        scale: this._scrollX.interpolate({
+            inputRange: [idx - 1, idx, idx + 1],
+            outputRange: [1, 1.2, 1],
+            extrapolate: 'clamp',
+        }),
+        opacity: this._scrollX.interpolate({
+            inputRange: [idx - 1, idx, idx + 1],
+            outputRange: [0.9, 1, 0.9],
+            extrapolate: 'clamp',
+        }),
+        textColor: this._scrollX.interpolate({
+            inputRange: [idx - 1, idx, idx + 1],
+            outputRange: ['#000', /* when not selected font color */
+                '#00A2BD', /* selected font color */
+                '#000'
+            ],
+            /* when not selected font color */
+        }),
+        backgroundColor: this._scrollX.interpolate({
+            inputRange: [idx - 1, idx, idx + 1],
+            outputRange: ['white', 'rgba(0, 160, 189, 0.25)', 'white'],
+            extrapolate: 'clamp',
+        }),
+    }));
+
+    componentWillMount() {
+        let patientInfo = localData.getPatient(this.props.patientKey);
+        this.setState({ patientInfo: patientInfo });
+    }
+
+    setModalVisible(visible) {
+        this.setState({ modalVisible: visible });
+    }
+
+    onNavigatorEvent(event) {
+        if (event.id === 'willAppear') {
+            let patientInfo = localData.getPatient(this.props.patientKey);
+            this.setState({ patientInfo: patientInfo });
+        }
+    }
+
+    goToTriage = (date) => {
+        let triage = this.state.patientInfo.triages.find(obj => {
+            return obj.date == date
+        });
+        this.props.navigator.push({
+            screen: 'Ihc.TriageHistory',
+            title: `${this.props.name}`,
+            passProps: {
+                currentPatientKey: this.state.patientInfo.key,
+                triage: triage,
+                gender: this.state.patientInfo.gender,
+            },
+        });
+    }
+
+    render() {
+        let triageLabel = `TRIAGE`;
+        let triage = localData.getTriage(this.props.patientKey, this.props.status.date);
+        return (
+          <View style = {
+                [styles.container, { paddingTop: 20 }] } >
+
+            <View style = {
+                { marginLeft: 40 } } >
+
+              <Text style = { styles.patientName } >
+                { this.props.name }
+              </Text>
+              <Text style = { styles.patientInfo } >
+                { `${this.state.patientInfo.gender == 1 ? 'Male' : 'Female'} | ${this.state.patientInfo.birthday}` }
+              </Text>
+            </View>
+            <ScrollableTabView style = { styles.tabContainer }
+              renderTabBar = {
+                  () =>
+                    ( <TabBar tabBarActiveTextColor = "#53ac49"
+                      underlineColor = "#00A2BD"
+                      tabBarStyle = {
+                          { backgroundColor: "#fff", borderTopColor: '#d2d2d2', borderTopWidth: 0 } }
+                      renderTab = {
+                          (tab, page, isTabActive, onPressHandler, onTabLayout) =>
+                            ( <Tab key = { page }
+                              tab = { tab }
+                              page = { page }
+                              isTabActive = { isTabActive }
+                              onPressHandler = { onPressHandler }
+                              onTabLayout = { onTabLayout }
+                              styles = { this.interpolators[page] }/>)
+                      }/>
+                )
+              }
+              onScroll = {
+                  (x) => this._scrollX.setValue(x) } >
+            <TriagePageNew currentPatientKey = { this.state.patientInfo.key }
+              gender = { this.state.patientInfo.gender }
+              goToTriage = { a => this.goToTriage(a) }
+              label = "Page #1 Hot"
+              canModify = { this.props.canModify }
+              tabLabel = {
+                  { label: triageLabel } }
+              status = { this.props.status }
+              showHistory = { this.props.showHistory }
+              showForm = { this.props.showForm }
+            />
+            <SoapScreen tabLabel = {
+                  { label: "SOAP" } }
+              label = "Page #2 SOAP" / >
+              <GrowthChartScreen tabLabel = {
+                  { label: "GROWTH CHART" } }
+              label = "Page #3 GC"
+              currentPatientKey = { this.state.patientInfo.key }
+              />
+            </ScrollableTabView>
+          </View>
+        );
+    }
 }
 
+
 const styles = StyleSheet.create({
-  gridContainer: {
-    flex: 1,
-    maxWidth: '80%',
-    alignItems: 'center',
-  },
-  col: {
-    alignItems: 'center',
-  },
-  triagescreen:{
-    flexDirection: 'column',
-    marginLeft: 100,
-  },
-  triagesection: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginBottom: 50,
-  },
-  inputsection: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    padding: 10,
-    start: 100,
-    alignItems: 'flex-start',
-  },
-  inputunitsection:{
-    flexDirection: 'column',
-    start: 0,
-    maxWidth: 100,
-    justifyContent: 'flex-start',
-    padding: 10,
-    alignItems: 'flex-start',
-  },
-  title: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 5,
-  },
-  subtitle: {
-    fontSize: 17,
-    textAlign: 'left',
-    margin: 3,
-  },
-  units: {
-    fontSize: 12,
-    marginLeft: 20,
-    height: 40,
-    marginTop: 10,
-  },
-  button: {
-    width: '80%',
-    alignItems: 'center',
-    marginBottom: 50,
-  },
-  input: {
-    marginBottom: 10,
-    width: 400,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-  },
-  switch: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-  }
+    tabContainer: {
+        marginHorizontal: '2.5%',
+    },
+    patientName: {
+        fontSize: 30,
+        color: 'black',
+        fontWeight: '900'
+    },
+    patientInfo: {
+        fontSize: 20,
+        color: '#333',
+    },
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: 'white',
+    },
+    welcome: {
+        fontSize: 20,
+        textAlign: 'center',
+        margin: 10,
+    },
+    instructions: {
+        textAlign: 'center',
+        color: '#333333',
+        marginBottom: 5,
+        fontSize: 28,
+    },
 });
 
-// Redux
-import { setLoading, setSuccessMessage, setErrorMessage, clearMessages, isUploading } from '../reduxActions/containerActions';
+import { setLoading, clearMessages } from '../reduxActions/containerActions';
 import { connect } from 'react-redux';
 
-const mapStateToProps = state => ({
-  loading: state.loading,
-  currentPatientKey: state.currentPatientKey
-});
-
 const mapDispatchToProps = dispatch => ({
-  setLoading: (val,showRetryButton) => dispatch(setLoading(val, showRetryButton)),
-  setErrorMessage: val => dispatch(setErrorMessage(val)),
-  setSuccessMessage: val => dispatch(setSuccessMessage(val)),
-  clearMessages: () => dispatch(clearMessages()),
-  isUploading: val => dispatch(isUploading(val))
+    setLoading: (val) => dispatch(setLoading(val)),
+    clearMessages: () => dispatch(clearMessages())
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PatientHomeScreen);
+export default connect(null, mapDispatchToProps)(PatientHomeScreen);

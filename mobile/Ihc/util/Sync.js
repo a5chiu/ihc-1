@@ -11,6 +11,7 @@ export function downstreamSyncWithServer() {
       return {failedPatientKeys: failedPatientKeys};
     });
 }
+
 export function downloadMedications() {
   const lastSynced = localData.medicationsLastSynced();
 

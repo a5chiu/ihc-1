@@ -33,7 +33,7 @@ if (config.testingServerDataService === 'true') {
     // start the app
     Navigation.startSingleScreenApp({
         screen: {
-            screen: 'Ihc.newPatientList',
+            screen: 'Ihc.PatientCheckIn',
             title: 'Welcome',
             navigatorStyle: {},
             navigatorButtons: {}

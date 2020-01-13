@@ -96,8 +96,7 @@ class newWelcomeScreen extends Component {
     }
 
     render() {
-        return
-          ( <Container >
+        return (<Container >
               <View style = { styles.menuContainer } >
                 <TouchableOpacity onPress = { this.goToSignin }
                 style = { styles.TouchableOpacityStyle } >
@@ -120,7 +119,7 @@ class newWelcomeScreen extends Component {
                   />
                 </TouchableOpacity >
 
-              </View> 
+              </View>
             </Container >
         );
     }

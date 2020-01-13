@@ -40,6 +40,7 @@ class PatientList extends Component {
         downstreamSyncWithServer()
             .then((failedPatientKeys) => {
                 // View README: Handle syncing the tablet, point 3 for explanation
+                console.log("within downstream Sync");
                 if (this.props.loading) {
                     if (failedPatientKeys.length > 0) {
                         throw new Error(`${failedPatientKeys.length} patients didn't properly sync.`);
@@ -120,87 +121,86 @@ class PatientList extends Component {
                 soapNum++;
             }
         });
-        return (<Container >
-            <View style = {
-                { height: '100%', width: '100%' }
-            }>
-            <View>
-              <Searchbar placeholder = "Search"
-              onChangeText = {
-                  query => {
-                      this.setState({ firstQuery: query }, () => this.filterPatients());
-                  }
-              }
-              value = { this.state.firstQuery }
-              style = { styles.search }
-              />
-            </View>
+        return (<Container>
+              <View style = {
+                  { height: '100%', width: '100%' }}>
+              <View>
+                <Searchbar placeholder = "Search"
+                onChangeText = {
+                    query => {
+                        this.setState({ firstQuery: query }, () => this.filterPatients());
+                    }
+                }
+                value = { this.state.firstQuery }
+                style = { styles.search }
+                />
+              </View>
 
-            <View>
-            <DataTable>
-            <DataTable.Header>
-              <DataTable.Title >
-                { `(${this.state.arrQ.length})  PATIENTS` }
-              </DataTable.Title>
-              <DataTable.Title>
-                Check In Time
-              </DataTable.Title>
-              <DataTable.Title>
-                { `(${triageNum}) TRIAGE` }
-              </DataTable.Title>
-              <DataTable.Title>
-                { `(${soapNum}) SOAP` }
-              </DataTable.Title>
-              <DataTable.Title>
-              </DataTable.Title>
-            </DataTable.Header>
+              <View>
+              <DataTable>
+              <DataTable.Header>
+                <DataTable.Title >
+                  { `(${this.state.arrQ.length})  PATIENTS` }
+                </DataTable.Title>
+                <DataTable.Title>
+                  Check In Time
+                </DataTable.Title>
+                <DataTable.Title>
+                  { `(${triageNum}) TRIAGE` }
+                </DataTable.Title>
+                <DataTable.Title>
+                  { `(${soapNum}) SOAP` }
+                </DataTable.Title>
+                <DataTable.Title>
+                </DataTable.Title>
+              </DataTable.Header>
 
-            <SafeAreaView>
-              <FlatList data = { this.state.arrQ }
-              renderItem = {
-                  ({ item }) => {
-                      return ( <DataTable.Row key = { item.key }
-                          onPress = {
-                              () => this.goToPatient(item)
-                          }>
-                            <DataTable.Cell >
-                              { item.name }
-                            </DataTable.Cell>
-                            <DataTable.Cell >
-                              { item.checkinTime ? new Date(item.checkinTime).toLocaleTimeString('en-US') : null }
-                            </DataTable.Cell>
-                            <DataTable.Cell >
-                              { item.triageCompleted ? new Date(item.triageCompleted).toLocaleTimeString('en-US') : null }
-                            </DataTable.Cell>
-                            <DataTable.Cell >
-                              { item.soapCompleted ? new Date(item.soapCompleted).toLocaleTimeString('en-US') : null }
-                            </DataTable.Cell>
-                            <DataTable.Cell style = { styles.button }
+              <SafeAreaView>
+                <FlatList data = { this.state.arrQ }
+                renderItem = {
+                    ({ item }) => {
+                        return ( <DataTable.Row key = { item.key }
                             onPress = {
-                                () => this.checkOut(item.patientKey)
+                                () => this.goToPatient(item)
                             }>
-                            <Text style = {
-                                { color: 'white', fontSize: 20 }
-                            }>
-                              Check out
-                            </Text>
-                            </DataTable.Cell >
-                          </DataTable.Row> );
-                      }
-                  }
-                  keyExtractor = { item => item.patientKey }
-                  onRefresh = {
-                      () => {
-                          this.setState({ isFetching: true }, () => this.syncAndLoadPatients());
-                      }
-                  }
-                  refreshing = { this.state.isFetching }
-                  />
-              </SafeAreaView>
-            </DataTable>
+                              <DataTable.Cell >
+                                { item.name }
+                              </DataTable.Cell>
+                              <DataTable.Cell >
+                                { item.checkinTime ? new Date(item.checkinTime).toLocaleTimeString('en-US') : null }
+                              </DataTable.Cell>
+                              <DataTable.Cell >
+                                { item.triageCompleted ? new Date(item.triageCompleted).toLocaleTimeString('en-US') : null }
+                              </DataTable.Cell>
+                              <DataTable.Cell >
+                                { item.soapCompleted ? new Date(item.soapCompleted).toLocaleTimeString('en-US') : null }
+                              </DataTable.Cell>
+                              <DataTable.Cell style = { styles.button }
+                              onPress = {
+                                  () => this.checkOut(item.patientKey)
+                              }>
+                              <Text style = {
+                                  { color: 'white', fontSize: 20 }
+                              }>
+                                Check out
+                              </Text>
+                              </DataTable.Cell >
+                            </DataTable.Row> );
+                        }
+                    }
+                    keyExtractor = { item => item.patientKey }
+                    onRefresh = {
+                        () => {
+                            this.setState({ isFetching: true }, () => this.syncAndLoadPatients());
+                        }
+                    }
+                    refreshing = { this.state.isFetching }
+                    />
+                </SafeAreaView>
+              </DataTable>
+            </View>
           </View>
-        </View>
-      </Container>
+        </Container>
             );
         }
     }

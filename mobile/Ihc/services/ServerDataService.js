@@ -265,6 +265,7 @@ export function getUpdatedPatients(lastSynced) {
   return fetch(fetchUrl + '/patients/' + lastSynced)
     .then(response => response.json())
     .then(json => {
+      console.log("INside server Data Get updated patients");
       if(json.error) {
         throw new Error(json.error);
       }
